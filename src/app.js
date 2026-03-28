@@ -82,6 +82,9 @@ const timeLabel = document.getElementById("timeLabel");
 const cityFilters = document.getElementById("cityFilters");
 const selectAllBtn = document.getElementById("selectAllBtn");
 const playButton = document.getElementById("playButton");
+const filterPanel = document.getElementById("filterPanel");
+const toggleFiltersBtn = document.getElementById("toggleFiltersBtn");
+const collapseLabel = toggleFiltersBtn.querySelector(".collapse-label");
 
 let playbackInterval = null;
 
@@ -190,6 +193,12 @@ function renderCityFilters() {
   });
 }
 
+function updateFiltersPanelState() {
+  const isExpanded = filterPanel.classList.contains("is-expanded");
+  toggleFiltersBtn.setAttribute("aria-expanded", String(isExpanded));
+  collapseLabel.textContent = isExpanded ? "Collapse" : "Expand";
+}
+
 d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
   .then(worldData => {
     svg.call(zoomBehavior);
@@ -226,7 +235,13 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
       startPlayback();
     });
 
+    toggleFiltersBtn.addEventListener("click", () => {
+      filterPanel.classList.toggle("is-expanded");
+      updateFiltersPanelState();
+    });
+
     updatePlaybackButton();
+    updateFiltersPanelState();
   })
   .catch(error => {
     console.error("Erreur lors du chargement de la carte :", error);

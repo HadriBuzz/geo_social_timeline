@@ -17,12 +17,24 @@
         </p>
       </div>
 
-      <div class="panel">
+      <div class="panel filter-panel is-expanded" id="filterPanel">
         <div class="panel-header">
           <h2>Filters</h2>
-          <button id="selectAllBtn" type="button" class="ghost-button">Display all</button>
+          <button
+            id="toggleFiltersBtn"
+            type="button"
+            class="collapse-button"
+            aria-expanded="true"
+            aria-controls="filtersBody"
+          >
+            <span class="collapse-label">Collapse</span>
+            <span class="collapse-icon" aria-hidden="true"></span>
+          </button>
         </div>
-        <div id="cityFilters" class="filter-list"></div>
+        <div id="filtersBody" class="filter-body">
+          <button id="selectAllBtn" type="button" class="ghost-button">Display all</button>
+          <div id="cityFilters" class="filter-list"></div>
+        </div>
       </div>
     </aside>
 
@@ -45,7 +57,6 @@
             </button>
             <input id="timeSlider" type="range" min="0" max="3" step="1" value="0" />
             <div class="time-badge">
-              <span class="time-badge-label">Period</span>
               <span id="timeLabel">2026-01</span>
             </div>
           </div>
