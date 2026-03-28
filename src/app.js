@@ -2,7 +2,7 @@ const width = 1000;
 const height = 550;
 
 const dates = ["2026-01", "2026-02", "2026-03", "2026-04"];
-const interests = ["politics", "economy", "sports", "entertainment"];
+const interests = ["politics", "economy", "sports", "entertainment", "movies"];
 
 const points = [
   {
@@ -14,6 +14,7 @@ const points = [
       economy: { "2026-01": 20, "2026-02": 30, "2026-03": 22, "2026-04": 55 },
       sports: { "2026-01": 15, "2026-02": 18, "2026-03": 20, "2026-04": 48 },
       entertainment: { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
+      movies: { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
     }
   },
   {
@@ -25,6 +26,7 @@ const points = [
       economy: { "2026-01": 20, "2026-02": 28, "2026-03": 42, "2026-04": 14 },
       sports: { "2026-01": 12, "2026-02": 16, "2026-03": 36, "2026-04": 10 },
       entertainment: { "2026-01": 10, "2026-02": 22, "2026-03": 30, "2026-04": 14 },
+      movies: { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
     }
   },
   {
@@ -36,6 +38,7 @@ const points = [
       economy: { "2026-01": 26, "2026-02": 18, "2026-03": 34, "2026-04": 28 },
       sports: { "2026-01": 24, "2026-02": 16, "2026-03": 46, "2026-04": 39 },
       entertainment: { "2026-01": 22, "2026-02": 22, "2026-03": 38, "2026-04": 38 },
+      movies: { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
     }
   }
 ];
@@ -45,6 +48,8 @@ const interestColors = {
   economy: "#9dc7f7",
   sports: "#9ad8b4",
   entertainment: "#d6b3f7",
+  movies: "#d1c3f7",
+
 };
 
 const DONUT_OUTER_RADIUS = 22;
@@ -74,6 +79,7 @@ const selectAllInterestsBtn = document.getElementById("selectAllInterestsBtn");
 const slider = document.getElementById("timeSlider");
 const timeLabel = document.getElementById("timeLabel");
 const playButton = document.getElementById("playButton");
+const interestLegend = document.getElementById("interestLegend");
 
 const collapsiblePanels = [
   {
@@ -237,6 +243,30 @@ function renderFilterList(container, items, key, onChange) {
   });
 }
 
+function renderInterestLegend() {
+  interestLegend.innerHTML = "";
+
+  const title = document.createElement("p");
+  title.className = "legend-title";
+  title.textContent = "Interests";
+  interestLegend.append(title);
+
+  interests.forEach(interest => {
+    const item = document.createElement("div");
+    item.className = "legend-item";
+
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.backgroundColor = interestColors[interest];
+
+    const label = document.createElement("span");
+    label.textContent = interest;
+
+    item.append(swatch, label);
+    interestLegend.append(item);
+  });
+}
+
 function updatePlaybackButton() {
   const isPlaying = playbackInterval !== null;
   playButton.setAttribute("aria-label", isPlaying ? "Pause timeline" : "Play timeline");
@@ -298,6 +328,8 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
     renderFilterList(interestFilters, interests, "interest", () => {
       updatePoints(dates[+slider.value]);
     });
+
+    renderInterestLegend();
 
     g.selectAll(".country")
       .data(worldData.features)

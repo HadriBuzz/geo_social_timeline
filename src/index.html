@@ -17,17 +17,17 @@
         </p>
       </div>
 
-      <div class="panel collapsible-panel is-expanded" id="interestPanel">
+      <div class="panel collapsible-panel" id="interestPanel">
         <div class="panel-header">
           <h2>Interests</h2>
           <button
             id="toggleInterestsBtn"
             type="button"
             class="collapse-button"
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="interestsBody"
           >
-            <span class="collapse-label">Collapse</span>
+            <span class="collapse-label">Expand</span>
             <span class="collapse-icon" aria-hidden="true"></span>
           </button>
         </div>
@@ -37,17 +37,17 @@
         </div>
       </div>
 
-      <div class="panel collapsible-panel is-expanded" id="cityPanel">
+      <div class="panel collapsible-panel" id="cityPanel">
         <div class="panel-header">
           <h2>Cities</h2>
           <button
             id="toggleCitiesBtn"
             type="button"
             class="collapse-button"
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="citiesBody"
           >
-            <span class="collapse-label">Collapse</span>
+            <span class="collapse-label">Expand</span>
             <span class="collapse-icon" aria-hidden="true"></span>
           </button>
         </div>
@@ -67,7 +67,10 @@
           </div>
         </div>
 
-        <div id="map"></div>
+        <div class="map-layout">
+          <div id="map"></div>
+          <aside id="interestLegend" class="interest-legend"></aside>
+        </div>
 
         <div id="controls" class="timeline-card">
           <label for="timeSlider">Chronology</label>
