@@ -120,7 +120,7 @@ function getDonutGeometry() {
 }
 
 function getDonutLabelFontSize() {
-  return Math.max(3, 8 / currentZoomScale);
+  return Math.max(2.5, 8 / currentZoomScale);
 }
 
 function updatePoints(selectedDate) {
