@@ -356,10 +356,35 @@ svg.is-dragging {
   background: rgba(244, 248, 253, 0.96);
 }
 
+.timeline-layout {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.timeline-main {
+  flex: 1;
+  display: grid;
+  gap: 10px;
+}
+
 .timeline-controls {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-height: 104px;
+}
+
+.speed-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 10px;
+  min-width: 72px;
+  padding: 12px 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(135, 157, 178, 0.18);
 }
 
 .timeline-card label {
@@ -429,6 +454,16 @@ svg.is-dragging {
   cursor: pointer;
 }
 
+#speedSlider {
+  width: 18px;
+  height: 100px;
+  margin: 0;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  accent-color: var(--accent);
+  cursor: ns-resize;
+}
+
 @media (max-width: 960px) {
   .layout {
     flex-direction: column;
@@ -444,6 +479,23 @@ svg.is-dragging {
   .timeline-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .timeline-layout {
+    flex-direction: column;
+  }
+
+  .speed-card {
+    width: 100%;
+    justify-items: start;
+  }
+
+  #speedSlider {
+    width: 100%;
+    height: auto;
+    writing-mode: initial;
+    direction: ltr;
+    cursor: pointer;
   }
 
   .map-layout {

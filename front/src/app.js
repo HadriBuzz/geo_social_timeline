@@ -44,6 +44,7 @@ const selectAllThemesBtn = document.getElementById("selectAllThemesBtn");
 const clearAllCitiesBtn = document.getElementById("clearAllCitiesBtn");
 const clearAllThemesBtn = document.getElementById("clearAllThemesBtn");
 const slider = document.getElementById("timeSlider");
+const speedSlider = document.getElementById("speedSlider");
 const timeLabel = document.getElementById("timeLabel");
 const playButton = document.getElementById("playButton");
 const themeLegend = document.getElementById("themeLegend");
@@ -62,6 +63,7 @@ const collapsiblePanels = [
 
 let playbackInterval = null;
 let currentZoomScale = 1;
+let playbackDelay = 500;
 
 const pie = d3
   .pie()
@@ -268,11 +270,17 @@ function showDateAtIndex(index) {
   updatePoints(dates[index]);
 }
 
+function getPlaybackDelay() {
+  const speedValue = Number(speedSlider.value);
+  return 1200 - ((speedValue - 1) * 225);
+}
+
 function startPlayback() {
   if (+slider.value >= dates.length - 1) {
     showDateAtIndex(0);
   }
 
+  playbackDelay = getPlaybackDelay();
   playbackInterval = window.setInterval(() => {
     const currentIndex = +slider.value;
 
@@ -282,7 +290,7 @@ function startPlayback() {
     }
 
     showDateAtIndex(currentIndex + 1);
-  }, 500);
+  }, playbackDelay);
 
   updatePlaybackButton();
 }
@@ -353,6 +361,15 @@ async function init() {
 
     slider.addEventListener("input", event => {
       updatePoints(dates[+event.target.value]);
+    });
+
+    speedSlider.addEventListener("input", () => {
+      playbackDelay = getPlaybackDelay();
+
+      if (playbackInterval !== null) {
+        stopPlayback();
+        startPlayback();
+      }
     });
 
     selectAllCitiesBtn.addEventListener("click", () => {
