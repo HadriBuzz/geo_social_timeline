@@ -114,7 +114,7 @@ function updatePoints(selectedDate) {
 
 function updatePlaybackButton() {
   const isPlaying = playbackInterval !== null;
-  playButton.textContent = isPlaying ? "Pause" : "Play";
+  playButton.setAttribute("aria-label", isPlaying ? "Pause timeline" : "Play timeline");
   playButton.classList.toggle("is-playing", isPlaying);
 }
 

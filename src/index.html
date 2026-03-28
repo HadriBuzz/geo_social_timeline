@@ -13,7 +13,7 @@
         <p class="eyebrow">Explorer</p>
         <h1>Human focus evolution</h1>
         <p class="panel-copy">
-          Track human societies focuses through times & areas.
+          Tracking the evolution of human interests across time and space.
         </p>
       </div>
 
@@ -42,11 +42,13 @@
         <div id="map"></div>
 
         <div id="controls" class="timeline-card">
-          <div class="timeline-header">
-            <label for="timeSlider">Chronology</label>
-            <button id="playButton" type="button" class="play-button">Play</button>
+          <label for="timeSlider">Chronology</label>
+          <div class="timeline-controls">
+            <button id="playButton" type="button" class="play-button" aria-label="Play timeline">
+              <span class="play-icon" aria-hidden="true"></span>
+            </button>
+            <input id="timeSlider" type="range" min="0" max="3" step="1" value="0" />
           </div>
-          <input id="timeSlider" type="range" min="0" max="3" step="1" value="0" />
         </div>
       </div>
     </section>
