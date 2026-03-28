@@ -7,17 +7,47 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Human focus evolution</h1>
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="panel">
+        <p class="eyebrow">Explorer</p>
+        <h1>Human focus evolution</h1>
+        <p class="panel-copy">
+          Suis l'evolution temporelle des zones d'attention et affiche seulement les villes qui t'interessent.
+        </p>
+      </div>
 
-  
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Filtres</h2>
+          <button id="selectAllBtn" type="button" class="ghost-button">Tout afficher</button>
+        </div>
+        <div id="cityFilters" class="filter-list"></div>
+      </div>
+    </aside>
 
-  <div id="map"></div>
+    <section class="content">
+      <div class="map-card">
+        <div class="map-header">
+          <div>
+            <p class="eyebrow">Carte globale</p>
+            <h2>Intensite par ville</h2>
+          </div>
+          <div class="time-badge">
+            <span class="time-badge-label">Periode</span>
+            <span id="timeLabel">2026-01</span>
+          </div>
+        </div>
 
-  <div id="controls">
-    <span id="timeLabel">2026-01</span>
-    <label for="timeSlider"> :</label>
-    <input id="timeSlider" type="range" min="0" max="2" step="1" value="0" />
-  </div>
+        <div id="map"></div>
+
+        <div id="controls" class="timeline-card">
+          <label for="timeSlider">Chronologie</label>
+          <input id="timeSlider" type="range" min="0" max="3" step="1" value="0" />
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="app.js"></script>

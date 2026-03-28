@@ -63,13 +63,44 @@ const radiusScale = d3
 
 const slider = document.getElementById("timeSlider");
 const timeLabel = document.getElementById("timeLabel");
+const cityFilters = document.getElementById("cityFilters");
+const selectAllBtn = document.getElementById("selectAllBtn");
 
 slider.max = dates.length - 1;
+
+function getSelectedCities() {
+  return points.filter(point => {
+    const input = document.querySelector(`input[data-city="${point.name}"]`);
+    return input?.checked;
+  });
+}
 
 function updatePoints(selectedDate) {
   timeLabel.textContent = selectedDate;
 
   g.selectAll(".point")
+    .data(getSelectedCities(), d => d.name)
+    .join(
+      enter => enter
+        .append("circle")
+        .attr("class", "point")
+        .attr("cx", d => projection([d.lon, d.lat])[0])
+        .attr("cy", d => projection([d.lon, d.lat])[1])
+        .attr("r", 0)
+        .each(function() {
+          d3.select(this).append("title");
+        })
+        .call(enter => enter
+          .transition()
+          .duration(300)
+          .attr("r", d => radiusScale(d.values[selectedDate]))),
+      update => update,
+      exit => exit
+        .transition()
+        .duration(200)
+        .attr("r", 0)
+        .remove()
+    )
     .transition()
     .duration(300)
     .attr("r", d => radiusScale(d.values[selectedDate]));
@@ -78,31 +109,53 @@ function updatePoints(selectedDate) {
     .text(d => `${d.name} - ${selectedDate} : ${d.values[selectedDate]}`);
 }
 
+function renderCityFilters() {
+  cityFilters.innerHTML = "";
+
+  points.forEach(point => {
+    const label = document.createElement("label");
+    label.className = "filter-item";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = true;
+    input.dataset.city = point.name;
+
+    const text = document.createElement("span");
+    text.textContent = point.name;
+
+    input.addEventListener("change", () => {
+      updatePoints(dates[+slider.value]);
+    });
+
+    label.append(input, text);
+    cityFilters.append(label);
+  });
+}
+
 d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
   .then(worldData => {
+    renderCityFilters();
+
     g.selectAll(".country")
       .data(worldData.features)
       .join("path")
       .attr("class", "country")
       .attr("d", path);
 
-    g.selectAll(".point")
-      .data(points)
-      .join("circle")
-      .attr("class", "point")
-      .attr("cx", d => projection([d.lon, d.lat])[0])
-      .attr("cy", d => projection([d.lon, d.lat])[1])
-      .attr("r", d => radiusScale(d.values[dates[0]]))
-      .each(function(d) {
-        d3.select(this)
-          .append("title")
-          .text(`${d.name} - ${dates[0]} : ${d.values[dates[0]]}`);
-      });
+    updatePoints(dates[0]);
 
     slider.addEventListener("input", (event) => {
       const index = +event.target.value;
       const selectedDate = dates[index];
       updatePoints(selectedDate);
+    });
+
+    selectAllBtn.addEventListener("click", () => {
+      cityFilters.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.checked = true;
+      });
+      updatePoints(dates[+slider.value]);
     });
   })
   .catch(error => {
