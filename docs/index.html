@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Geo - Slider MVP</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="panel">
+        <p class="eyebrow">Explorer</p>
+        <h1>Human themes evolution</h1>
+        <p class="panel-copy">
+          Tracking the evolution of human themes across time and space.
+        </p>
+      </div>
+
+      <div class="panel collapsible-panel" id="themePanel">
+        <div class="panel-header">
+          <h2>Themes</h2>
+          <button
+            id="toggleThemesBtn"
+            type="button"
+            class="collapse-button"
+            aria-expanded="false"
+            aria-controls="themesBody"
+          >
+            <span class="collapse-label">Expand</span>
+            <span class="collapse-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div id="themesBody" class="filter-body">
+          <div class="filter-actions">
+            <button id="selectAllThemesBtn" type="button" class="ghost-button">Display all</button>
+            <button id="clearAllThemesBtn" type="button" class="ghost-button ghost-button-secondary">Hide all</button>
+          </div>
+          <div id="themeFilters" class="filter-list"></div>
+        </div>
+      </div>
+
+      <div class="panel collapsible-panel" id="cityPanel">
+        <div class="panel-header">
+          <h2>Cities</h2>
+          <button
+            id="toggleCitiesBtn"
+            type="button"
+            class="collapse-button"
+            aria-expanded="false"
+            aria-controls="citiesBody"
+          >
+            <span class="collapse-label">Expand</span>
+            <span class="collapse-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div id="citiesBody" class="filter-body">
+          <div class="filter-actions">
+            <button id="selectAllCitiesBtn" type="button" class="ghost-button">Display all</button>
+            <button id="clearAllCitiesBtn" type="button" class="ghost-button ghost-button-secondary">Hide all</button>
+          </div>
+          <div id="cityFilters" class="filter-list"></div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="map-card">
+        <div class="map-header">
+          <div>
+            <p class="eyebrow">Global Map</p>
+            <h2>Area intensity</h2>
+          </div>
+        </div>
+
+        <div class="map-layout">
+          <div id="map"></div>
+          <aside id="themeLegend" class="theme-legend"></aside>
+        </div>
+
+        <div class="map-actions">
+          <a id="downloadDataLink" class="download-link" href="#" download="geo_social_timeline_data.json">
+            Download data
+          </a>
+        </div>
+
+        <div id="controls" class="timeline-card">
+          <div class="timeline-layout">
+            <div class="speed-card">
+              <label for="speedSlider">Speed</label>
+              <input id="speedSlider" type="range" min="1" max="5" step="1" value="3" />
+            </div>
+            <div class="timeline-main">
+              <label for="timeSlider">Chronology</label>
+              <div class="timeline-controls">
+                <button id="playButton" type="button" class="play-button" aria-label="Play timeline">
+                  <span class="play-icon" aria-hidden="true"></span>
+                </button>
+                <input id="timeSlider" type="range" min="0" max="3" step="1" value="0" />
+                <div class="time-badge">
+                  <span id="timeLabel">2026-01</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
