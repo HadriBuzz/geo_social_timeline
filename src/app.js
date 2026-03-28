@@ -42,6 +42,8 @@ const points = [
 const svg = d3
   .select("#map")
   .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
   .attr("width", width)
   .attr("height", height);
 
@@ -53,6 +55,20 @@ const projection = d3
   .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);
+
+const zoomBehavior = d3
+  .zoom()
+  .scaleExtent([1, 8])
+  .translateExtent([[-width, -height], [width * 2, height * 2]])
+  .on("start", () => {
+    svg.classed("is-dragging", true);
+  })
+  .on("zoom", (event) => {
+    g.attr("transform", event.transform);
+  })
+  .on("end", () => {
+    svg.classed("is-dragging", false);
+  });
 
 const maxValue = d3.max(points, p => d3.max(Object.values(p.values)));
 
@@ -176,6 +192,8 @@ function renderCityFilters() {
 
 d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
   .then(worldData => {
+    svg.call(zoomBehavior);
+
     renderCityFilters();
 
     g.selectAll(".country")

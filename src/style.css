@@ -186,6 +186,12 @@ svg {
   background: linear-gradient(180deg, #dff3ff 0%, #eef7ff 50%, #f8fbff 100%);
   border-radius: 24px;
   border: 1px solid rgba(135, 157, 178, 0.24);
+  cursor: grab;
+  touch-action: none;
+}
+
+svg.is-dragging {
+  cursor: grabbing;
 }
 
 .country {
