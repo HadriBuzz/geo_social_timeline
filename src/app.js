@@ -2,42 +2,53 @@ const width = 1000;
 const height = 550;
 
 const dates = ["2026-01", "2026-02", "2026-03", "2026-04"];
+const interests = ["politics", "economy", "sports", "entertainment"];
 
 const points = [
   {
     name: "Paris",
     lon: 2.3522,
     lat: 48.8566,
-    values: {
-      "2026-01": 80,
-      "2026-02": 120,
-      "2026-03": 100,
-      "2026-04": 250,
+    interests: {
+      politics: { "2026-01": 35, "2026-02": 50, "2026-03": 45, "2026-04": 90 },
+      economy: { "2026-01": 20, "2026-02": 30, "2026-03": 22, "2026-04": 55 },
+      sports: { "2026-01": 15, "2026-02": 18, "2026-03": 20, "2026-04": 48 },
+      entertainment: { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
     }
   },
   {
     name: "New York",
-    lon: -74.0060,
+    lon: -74.006,
     lat: 40.7128,
-    values: {
-      "2026-01": 60,
-      "2026-02": 90,
-      "2026-03": 140,
-      "2026-04": 50,
+    interests: {
+      politics: { "2026-01": 18, "2026-02": 24, "2026-03": 32, "2026-04": 12 },
+      economy: { "2026-01": 20, "2026-02": 28, "2026-03": 42, "2026-04": 14 },
+      sports: { "2026-01": 12, "2026-02": 16, "2026-03": 36, "2026-04": 10 },
+      entertainment: { "2026-01": 10, "2026-02": 22, "2026-03": 30, "2026-04": 14 },
     }
   },
   {
     name: "Tokyo",
     lon: 139.6917,
     lat: 35.6895,
-    values: {
-      "2026-01": 100,
-      "2026-02": 70,
-      "2026-03": 150,
-      "2026-04": 130,
+    interests: {
+      politics: { "2026-01": 28, "2026-02": 14, "2026-03": 32, "2026-04": 25 },
+      economy: { "2026-01": 26, "2026-02": 18, "2026-03": 34, "2026-04": 28 },
+      sports: { "2026-01": 24, "2026-02": 16, "2026-03": 46, "2026-04": 39 },
+      entertainment: { "2026-01": 22, "2026-02": 22, "2026-03": 38, "2026-04": 38 },
     }
   }
 ];
+
+const interestColors = {
+  politics: "#f4a6a6",
+  economy: "#9dc7f7",
+  sports: "#9ad8b4",
+  entertainment: "#d6b3f7",
+};
+
+const DONUT_OUTER_RADIUS = 22;
+const DONUT_INNER_RATIO = 0.52;
 
 const svg = d3
   .select("#map")
@@ -56,6 +67,35 @@ const projection = d3
 
 const path = d3.geoPath().projection(projection);
 
+const cityFilters = document.getElementById("cityFilters");
+const interestFilters = document.getElementById("interestFilters");
+const selectAllCitiesBtn = document.getElementById("selectAllCitiesBtn");
+const selectAllInterestsBtn = document.getElementById("selectAllInterestsBtn");
+const slider = document.getElementById("timeSlider");
+const timeLabel = document.getElementById("timeLabel");
+const playButton = document.getElementById("playButton");
+
+const collapsiblePanels = [
+  {
+    panel: document.getElementById("interestPanel"),
+    button: document.getElementById("toggleInterestsBtn"),
+  },
+  {
+    panel: document.getElementById("cityPanel"),
+    button: document.getElementById("toggleCitiesBtn"),
+  },
+];
+
+let playbackInterval = null;
+let currentZoomScale = 1;
+
+slider.max = dates.length - 1;
+
+const pie = d3
+  .pie()
+  .sort(null)
+  .value(d => d.value);
+
 const zoomBehavior = d3
   .zoom()
   .scaleExtent([1, 8])
@@ -63,36 +103,14 @@ const zoomBehavior = d3
   .on("start", () => {
     svg.classed("is-dragging", true);
   })
-  .on("zoom", (event) => {
+  .on("zoom", event => {
     currentZoomScale = event.transform.k;
     g.attr("transform", event.transform);
-    g.selectAll(".point")
-      .attr("r", d => radiusScale(d.values[dates[+slider.value]]) / currentZoomScale);
+    updatePoints(dates[+slider.value]);
   })
   .on("end", () => {
     svg.classed("is-dragging", false);
   });
-
-const maxValue = d3.max(points, p => d3.max(Object.values(p.values)));
-
-const radiusScale = d3
-  .scaleSqrt()
-  .domain([0, maxValue])
-  .range([4, 20]);
-
-const slider = document.getElementById("timeSlider");
-const timeLabel = document.getElementById("timeLabel");
-const cityFilters = document.getElementById("cityFilters");
-const selectAllBtn = document.getElementById("selectAllBtn");
-const playButton = document.getElementById("playButton");
-const filterPanel = document.getElementById("filterPanel");
-const toggleFiltersBtn = document.getElementById("toggleFiltersBtn");
-const collapseLabel = toggleFiltersBtn.querySelector(".collapse-label");
-
-let playbackInterval = null;
-let currentZoomScale = 1;
-
-slider.max = dates.length - 1;
 
 function getSelectedCities() {
   return points.filter(point => {
@@ -101,38 +119,122 @@ function getSelectedCities() {
   });
 }
 
+function getSelectedInterests() {
+  return interests.filter(interest => {
+    const input = document.querySelector(`input[data-interest="${interest}"]`);
+    return input?.checked;
+  });
+}
+
+function getInterestValue(point, interest, selectedDate) {
+  return point.interests[interest]?.[selectedDate] ?? 0;
+}
+
+function getDonutGeometry() {
+  const outerRadius = DONUT_OUTER_RADIUS / currentZoomScale;
+  const innerRadius = outerRadius * DONUT_INNER_RATIO;
+  return {
+    outerRadius,
+    innerRadius,
+    arc: d3.arc().innerRadius(innerRadius).outerRadius(outerRadius),
+    labelArc: d3.arc().innerRadius(innerRadius).outerRadius(outerRadius),
+  };
+}
+
 function updatePoints(selectedDate) {
   timeLabel.textContent = selectedDate;
 
-  g.selectAll(".point")
-    .data(getSelectedCities(), d => d.name)
+  const selectedCities = getSelectedCities();
+  const selectedInterests = getSelectedInterests();
+  const { outerRadius, innerRadius, arc, labelArc } = getDonutGeometry();
+
+  const donutGroups = g.selectAll(".donut")
+    .data(selectedCities, d => d.name)
     .join(
       enter => enter
-        .append("circle")
-        .attr("class", "point")
-        .attr("cx", d => projection([d.lon, d.lat])[0])
-        .attr("cy", d => projection([d.lon, d.lat])[1])
-        .attr("r", 0)
+        .append("g")
+        .attr("class", "donut")
         .each(function() {
+          d3.select(this).append("circle").attr("class", "donut-hole");
           d3.select(this).append("title");
-        })
-        .call(enter => enter
-          .transition()
-          .duration(300)
-          .attr("r", d => radiusScale(d.values[selectedDate]) / currentZoomScale)),
+        }),
       update => update,
-      exit => exit
-        .transition()
-        .duration(200)
-        .attr("r", 0)
-        .remove()
+      exit => exit.remove()
     )
-    .transition()
-    .duration(300)
-    .attr("r", d => radiusScale(d.values[selectedDate]) / currentZoomScale);
+    .attr("transform", d => {
+      const [x, y] = projection([d.lon, d.lat]);
+      return `translate(${x}, ${y})`;
+    });
 
-  g.selectAll(".point title")
-    .text(d => `${d.name} - ${selectedDate} : ${d.values[selectedDate]}`);
+  donutGroups.each(function(point) {
+    const group = d3.select(this);
+    const donutData = pie(
+      selectedInterests.map(interest => ({
+        interest,
+        value: getInterestValue(point, interest, selectedDate),
+      }))
+    ).filter(segment => segment.data.value > 0);
+
+    group.selectAll(".donut-slice")
+      .data(donutData, d => d.data.interest)
+      .join(
+        enter => enter
+          .append("path")
+          .attr("class", "donut-slice")
+          .attr("fill", d => interestColors[d.data.interest])
+          .attr("d", arc),
+        update => update
+          .attr("fill", d => interestColors[d.data.interest])
+          .attr("d", arc),
+        exit => exit.remove()
+      );
+
+    group.select(".donut-hole")
+      .attr("r", donutData.length > 0 ? innerRadius : 0);
+
+    group.selectAll(".donut-label")
+      .data(donutData, d => d.data.interest)
+      .join(
+        enter => enter
+          .append("text")
+          .attr("class", "donut-label")
+          .attr("transform", d => `translate(${labelArc.centroid(d)})`)
+          .text(d => d.data.value),
+        update => update
+          .attr("transform", d => `translate(${labelArc.centroid(d)})`)
+          .text(d => d.data.value),
+        exit => exit.remove()
+      )
+      .style("display", d => d.data.value >= 10 ? "block" : "none");
+
+    const breakdown = selectedInterests
+      .map(interest => `${interest}: ${getInterestValue(point, interest, selectedDate)}`)
+      .join(" | ");
+
+    group.select("title")
+      .text(`${point.name} - ${selectedDate} - ${breakdown}`);
+  });
+}
+
+function renderFilterList(container, items, key, onChange) {
+  container.innerHTML = "";
+
+  items.forEach(item => {
+    const label = document.createElement("label");
+    label.className = "filter-item";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = true;
+    input.dataset[key] = item;
+    input.addEventListener("change", onChange);
+
+    const text = document.createElement("span");
+    text.textContent = item;
+
+    label.append(input, text);
+    container.append(label);
+  });
 }
 
 function updatePlaybackButton() {
@@ -173,41 +275,29 @@ function startPlayback() {
   updatePlaybackButton();
 }
 
-function renderCityFilters() {
-  cityFilters.innerHTML = "";
-
-  points.forEach(point => {
-    const label = document.createElement("label");
-    label.className = "filter-item";
-
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = true;
-    input.dataset.city = point.name;
-
-    const text = document.createElement("span");
-    text.textContent = point.name;
-
-    input.addEventListener("change", () => {
-      updatePoints(dates[+slider.value]);
-    });
-
-    label.append(input, text);
-    cityFilters.append(label);
-  });
+function updatePanelState(panel, button) {
+  const isExpanded = panel.classList.contains("is-expanded");
+  button.setAttribute("aria-expanded", String(isExpanded));
+  button.querySelector(".collapse-label").textContent = isExpanded ? "Collapse" : "Expand";
 }
 
-function updateFiltersPanelState() {
-  const isExpanded = filterPanel.classList.contains("is-expanded");
-  toggleFiltersBtn.setAttribute("aria-expanded", String(isExpanded));
-  collapseLabel.textContent = isExpanded ? "Collapse" : "Expand";
+function selectAllIn(container, attribute) {
+  container.querySelectorAll(`input[data-${attribute}]`).forEach(input => {
+    input.checked = true;
+  });
 }
 
 d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
   .then(worldData => {
     svg.call(zoomBehavior);
 
-    renderCityFilters();
+    renderFilterList(cityFilters, points.map(point => point.name), "city", () => {
+      updatePoints(dates[+slider.value]);
+    });
+
+    renderFilterList(interestFilters, interests, "interest", () => {
+      updatePoints(dates[+slider.value]);
+    });
 
     g.selectAll(".country")
       .data(worldData.features)
@@ -217,16 +307,17 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
 
     updatePoints(dates[0]);
 
-    slider.addEventListener("input", (event) => {
-      const index = +event.target.value;
-      const selectedDate = dates[index];
-      updatePoints(selectedDate);
+    slider.addEventListener("input", event => {
+      updatePoints(dates[+event.target.value]);
     });
 
-    selectAllBtn.addEventListener("click", () => {
-      cityFilters.querySelectorAll('input[type="checkbox"]').forEach(input => {
-        input.checked = true;
-      });
+    selectAllCitiesBtn.addEventListener("click", () => {
+      selectAllIn(cityFilters, "city");
+      updatePoints(dates[+slider.value]);
+    });
+
+    selectAllInterestsBtn.addEventListener("click", () => {
+      selectAllIn(interestFilters, "interest");
       updatePoints(dates[+slider.value]);
     });
 
@@ -239,13 +330,16 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
       startPlayback();
     });
 
-    toggleFiltersBtn.addEventListener("click", () => {
-      filterPanel.classList.toggle("is-expanded");
-      updateFiltersPanelState();
+    collapsiblePanels.forEach(({ panel, button }) => {
+      button.addEventListener("click", () => {
+        panel.classList.toggle("is-expanded");
+        updatePanelState(panel, button);
+      });
+
+      updatePanelState(panel, button);
     });
 
     updatePlaybackButton();
-    updateFiltersPanelState();
   })
   .catch(error => {
     console.error("Erreur lors du chargement de la carte :", error);

@@ -17,22 +17,42 @@
         </p>
       </div>
 
-      <div class="panel filter-panel is-expanded" id="filterPanel">
+      <div class="panel collapsible-panel is-expanded" id="interestPanel">
         <div class="panel-header">
-          <h2>Cities</h2>
+          <h2>Interests</h2>
           <button
-            id="toggleFiltersBtn"
+            id="toggleInterestsBtn"
             type="button"
             class="collapse-button"
             aria-expanded="true"
-            aria-controls="filtersBody"
+            aria-controls="interestsBody"
           >
             <span class="collapse-label">Collapse</span>
             <span class="collapse-icon" aria-hidden="true"></span>
           </button>
         </div>
-        <div id="filtersBody" class="filter-body">
-          <button id="selectAllBtn" type="button" class="ghost-button">Display all</button>
+        <div id="interestsBody" class="filter-body">
+          <button id="selectAllInterestsBtn" type="button" class="ghost-button">Display all</button>
+          <div id="interestFilters" class="filter-list"></div>
+        </div>
+      </div>
+
+      <div class="panel collapsible-panel is-expanded" id="cityPanel">
+        <div class="panel-header">
+          <h2>Cities</h2>
+          <button
+            id="toggleCitiesBtn"
+            type="button"
+            class="collapse-button"
+            aria-expanded="true"
+            aria-controls="citiesBody"
+          >
+            <span class="collapse-label">Collapse</span>
+            <span class="collapse-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div id="citiesBody" class="filter-body">
+          <button id="selectAllCitiesBtn" type="button" class="ghost-button">Display all</button>
           <div id="cityFilters" class="filter-list"></div>
         </div>
       </div>
