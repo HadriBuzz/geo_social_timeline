@@ -1,6 +1,21 @@
+import json
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+
+
+BASE_DIR = Path(__file__).resolve().parent
+MOCK_DATA_PATH = BASE_DIR / "mock_data" / "init_mock_data.json"
+
+
+def load_mock_data() -> dict:
+    with MOCK_DATA_PATH.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+DATA = load_mock_data()
 
 app = FastAPI(title="Geo Social Timeline API")
 

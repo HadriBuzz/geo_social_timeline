@@ -7,11 +7,12 @@ let interests = [];
 let points = [];
 
 const interestColors = {
-  politics: "#f4a6a6",
-  economy: "#9dc7f7",
-  sports: "#9ad8b4",
-  entertainment: "#d6b3f7",
+  Politics: "#f4a6a6",
+  Economy: "#9dc7f7",
+  Sports: "#9ad8b4",
+  Entertainement: "#d6b3f7",
   "Artificial Intelligence": "#fff4b8",
+  Quantum: "#6a93b0",
 };
 
 const fallbackPalette = ["#f9c7c7", "#bdd7fb", "#b8e7cd", "#e3cbfb", "#ffe4b8", "#cce7ef"];
@@ -40,10 +41,13 @@ const cityFilters = document.getElementById("cityFilters");
 const interestFilters = document.getElementById("interestFilters");
 const selectAllCitiesBtn = document.getElementById("selectAllCitiesBtn");
 const selectAllInterestsBtn = document.getElementById("selectAllInterestsBtn");
+const clearAllCitiesBtn = document.getElementById("clearAllCitiesBtn");
+const clearAllInterestsBtn = document.getElementById("clearAllInterestsBtn");
 const slider = document.getElementById("timeSlider");
 const timeLabel = document.getElementById("timeLabel");
 const playButton = document.getElementById("playButton");
 const interestLegend = document.getElementById("interestLegend");
+const downloadDataLink = document.getElementById("downloadDataLink");
 
 const collapsiblePanels = [
   {
@@ -115,6 +119,10 @@ function getDonutGeometry() {
   };
 }
 
+function getDonutLabelFontSize() {
+  return Math.max(3, 8 / currentZoomScale);
+}
+
 function updatePoints(selectedDate) {
   timeLabel.textContent = selectedDate;
 
@@ -179,6 +187,7 @@ function updatePoints(selectedDate) {
           .text(d => d.data.value),
         exit => exit.remove()
       )
+      .style("font-size", `${getDonutLabelFontSize()}px`)
       .style("display", d => d.data.value >= 10 ? "block" : "none");
 
     const breakdown = selectedInterests
@@ -273,7 +282,7 @@ function startPlayback() {
     }
 
     showDateAtIndex(currentIndex + 1);
-  }, 900);
+  }, 500);
 
   updatePlaybackButton();
 }
@@ -287,6 +296,12 @@ function updatePanelState(panel, button) {
 function selectAllIn(container, attribute) {
   container.querySelectorAll(`input[data-${attribute}]`).forEach(input => {
     input.checked = true;
+  });
+}
+
+function clearAllIn(container, attribute) {
+  container.querySelectorAll(`input[data-${attribute}]`).forEach(input => {
+    input.checked = false;
   });
 }
 
@@ -310,6 +325,7 @@ async function init() {
     dates = data.dates;
     interests = data.interests;
     points = data.points;
+    downloadDataLink.href = API_URL;
 
     slider.max = dates.length - 1;
     slider.value = 0;
@@ -344,8 +360,19 @@ async function init() {
       updatePoints(dates[+slider.value]);
     });
 
+    clearAllCitiesBtn.addEventListener("click", () => {
+      clearAllIn(cityFilters, "city");
+      updatePoints(dates[+slider.value]);
+    });
+
     selectAllInterestsBtn.addEventListener("click", () => {
       selectAllIn(interestFilters, "interest");
+      renderInterestLegend();
+      updatePoints(dates[+slider.value]);
+    });
+
+    clearAllInterestsBtn.addEventListener("click", () => {
+      clearAllIn(interestFilters, "interest");
       renderInterestLegend();
       updatePoints(dates[+slider.value]);
     });

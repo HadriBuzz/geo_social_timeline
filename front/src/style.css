@@ -70,6 +70,24 @@ body {
   margin-top: 18px;
 }
 
+.map-actions {
+  margin-top: 14px;
+}
+
+.download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.download-link:hover {
+  text-decoration: underline;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   font-size: 12px;
@@ -125,6 +143,15 @@ h2 {
   background: rgba(31, 111, 235, 0.18);
 }
 
+.ghost-button-secondary {
+  background: rgba(95, 114, 136, 0.1);
+  color: var(--muted);
+}
+
+.ghost-button-secondary:hover {
+  background: rgba(95, 114, 136, 0.16);
+}
+
 .collapsible-panel .panel-header {
   align-items: center;
 }
@@ -133,6 +160,12 @@ h2 {
   display: grid;
   gap: 16px;
   margin-top: 18px;
+}
+
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .collapsible-panel:not(.is-expanded) .filter-body {
