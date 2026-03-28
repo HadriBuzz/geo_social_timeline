@@ -245,13 +245,18 @@ function renderFilterList(container, items, key, onChange) {
 
 function renderInterestLegend() {
   interestLegend.innerHTML = "";
+  const selectedInterests = getSelectedInterests();
+
+  if (selectedInterests.length === 0) {
+    return;
+  }
 
   const title = document.createElement("p");
   title.className = "legend-title";
   title.textContent = "Interests";
   interestLegend.append(title);
 
-  interests.forEach(interest => {
+  selectedInterests.forEach(interest => {
     const item = document.createElement("div");
     item.className = "legend-item";
 
@@ -326,6 +331,7 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
     });
 
     renderFilterList(interestFilters, interests, "interest", () => {
+      renderInterestLegend();
       updatePoints(dates[+slider.value]);
     });
 
