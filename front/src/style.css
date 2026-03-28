@@ -251,7 +251,7 @@ h2 {
   color: #10253b;
 }
 
-.interest-legend {
+.theme-legend {
   width: 180px;
   flex: 0 0 180px;
   display: grid;
@@ -450,7 +450,7 @@ svg.is-dragging {
     flex-direction: column;
   }
 
-  .interest-legend {
+  .theme-legend {
     width: 100%;
     flex-basis: auto;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

@@ -3,10 +3,10 @@ const height = 550;
 const API_URL = "http://127.0.0.1:8000/data";
 
 let dates = [];
-let interests = [];
+let themes = [];
 let points = [];
 
-const interestColors = {
+const themeColors = {
   Politics: "#f4a6a6",
   Economy: "#9dc7f7",
   Sports: "#9ad8b4",
@@ -38,21 +38,21 @@ const projection = d3
 const path = d3.geoPath().projection(projection);
 
 const cityFilters = document.getElementById("cityFilters");
-const interestFilters = document.getElementById("interestFilters");
+const themeFilters = document.getElementById("themeFilters");
 const selectAllCitiesBtn = document.getElementById("selectAllCitiesBtn");
-const selectAllInterestsBtn = document.getElementById("selectAllInterestsBtn");
+const selectAllThemesBtn = document.getElementById("selectAllThemesBtn");
 const clearAllCitiesBtn = document.getElementById("clearAllCitiesBtn");
-const clearAllInterestsBtn = document.getElementById("clearAllInterestsBtn");
+const clearAllThemesBtn = document.getElementById("clearAllThemesBtn");
 const slider = document.getElementById("timeSlider");
 const timeLabel = document.getElementById("timeLabel");
 const playButton = document.getElementById("playButton");
-const interestLegend = document.getElementById("interestLegend");
+const themeLegend = document.getElementById("themeLegend");
 const downloadDataLink = document.getElementById("downloadDataLink");
 
 const collapsiblePanels = [
   {
-    panel: document.getElementById("interestPanel"),
-    button: document.getElementById("toggleInterestsBtn"),
+    panel: document.getElementById("themePanel"),
+    button: document.getElementById("toggleThemesBtn"),
   },
   {
     panel: document.getElementById("cityPanel"),
@@ -87,8 +87,8 @@ const zoomBehavior = d3
     svg.classed("is-dragging", false);
   });
 
-function getInterestColor(interest, index) {
-  return interestColors[interest] ?? fallbackPalette[index % fallbackPalette.length];
+function getThemeColor(theme, index) {
+  return themeColors[theme] ?? fallbackPalette[index % fallbackPalette.length];
 }
 
 function getSelectedCities() {
@@ -98,15 +98,15 @@ function getSelectedCities() {
   });
 }
 
-function getSelectedInterests() {
-  return interests.filter(interest => {
-    const input = document.querySelector(`input[data-interest="${interest}"]`);
+function getSelectedThemes() {
+  return themes.filter(theme => {
+    const input = document.querySelector(`input[data-theme="${theme}"]`);
     return input?.checked;
   });
 }
 
-function getInterestValue(point, interest, selectedDate) {
-  return point.interests[interest]?.[selectedDate] ?? 0;
+function getThemeValue(point, theme, selectedDate) {
+  return point.themes[theme]?.[selectedDate] ?? 0;
 }
 
 function getDonutGeometry() {
@@ -127,7 +127,7 @@ function updatePoints(selectedDate) {
   timeLabel.textContent = selectedDate;
 
   const selectedCities = getSelectedCities();
-  const selectedInterests = getSelectedInterests();
+  const selectedThemes = getSelectedThemes();
   const { innerRadius, arc, labelArc } = getDonutGeometry();
 
   const donutGroups = g.selectAll(".donut")
@@ -151,22 +151,22 @@ function updatePoints(selectedDate) {
   donutGroups.each(function(point) {
     const group = d3.select(this);
     const donutData = pie(
-      selectedInterests.map(interest => ({
-        interest,
-        value: getInterestValue(point, interest, selectedDate),
+      selectedThemes.map(theme => ({
+        theme,
+        value: getThemeValue(point, theme, selectedDate),
       }))
     ).filter(segment => segment.data.value > 0);
 
     group.selectAll(".donut-slice")
-      .data(donutData, d => d.data.interest)
+      .data(donutData, d => d.data.theme)
       .join(
         enter => enter
           .append("path")
           .attr("class", "donut-slice")
-          .attr("fill", d => getInterestColor(d.data.interest, interests.indexOf(d.data.interest)))
+          .attr("fill", d => getThemeColor(d.data.theme, themes.indexOf(d.data.theme)))
           .attr("d", arc),
         update => update
-          .attr("fill", d => getInterestColor(d.data.interest, interests.indexOf(d.data.interest)))
+          .attr("fill", d => getThemeColor(d.data.theme, themes.indexOf(d.data.theme)))
           .attr("d", arc),
         exit => exit.remove()
       );
@@ -175,7 +175,7 @@ function updatePoints(selectedDate) {
       .attr("r", donutData.length > 0 ? innerRadius : 0);
 
     group.selectAll(".donut-label")
-      .data(donutData, d => d.data.interest)
+      .data(donutData, d => d.data.theme)
       .join(
         enter => enter
           .append("text")
@@ -190,8 +190,8 @@ function updatePoints(selectedDate) {
       .style("font-size", `${getDonutLabelFontSize()}px`)
       .style("display", d => d.data.value >= 10 ? "block" : "none");
 
-    const breakdown = selectedInterests
-      .map(interest => `${interest}: ${getInterestValue(point, interest, selectedDate)}`)
+    const breakdown = selectedThemes
+      .map(theme => `${theme}: ${getThemeValue(point, theme, selectedDate)}`)
       .join(" | ");
 
     group.select("title")
@@ -220,32 +220,32 @@ function renderFilterList(container, items, key, onChange) {
   });
 }
 
-function renderInterestLegend() {
-  interestLegend.innerHTML = "";
-  const selectedInterests = getSelectedInterests();
+function renderThemeLegend() {
+  themeLegend.innerHTML = "";
+  const selectedThemes = getSelectedThemes();
 
-  if (selectedInterests.length === 0) {
+  if (selectedThemes.length === 0) {
     return;
   }
 
   const title = document.createElement("p");
   title.className = "legend-title";
-  title.textContent = "Interests";
-  interestLegend.append(title);
+  title.textContent = "Themes";
+  themeLegend.append(title);
 
-  selectedInterests.forEach((interest, index) => {
+  selectedThemes.forEach((theme, index) => {
     const item = document.createElement("div");
     item.className = "legend-item";
 
     const swatch = document.createElement("span");
     swatch.className = "legend-swatch";
-    swatch.style.backgroundColor = getInterestColor(interest, index);
+    swatch.style.backgroundColor = getThemeColor(theme, index);
 
     const label = document.createElement("span");
-    label.textContent = interest;
+    label.textContent = theme;
 
     item.append(swatch, label);
-    interestLegend.append(item);
+    themeLegend.append(item);
   });
 }
 
@@ -323,7 +323,7 @@ async function init() {
     ]);
 
     dates = data.dates;
-    interests = data.interests;
+    themes = data.themes;
     points = data.points;
     downloadDataLink.href = API_URL;
 
@@ -336,12 +336,12 @@ async function init() {
       updatePoints(dates[+slider.value]);
     });
 
-    renderFilterList(interestFilters, interests, "interest", () => {
-      renderInterestLegend();
+    renderFilterList(themeFilters, themes, "theme", () => {
+      renderThemeLegend();
       updatePoints(dates[+slider.value]);
     });
 
-    renderInterestLegend();
+    renderThemeLegend();
 
     g.selectAll(".country")
       .data(worldData.features)
@@ -365,15 +365,15 @@ async function init() {
       updatePoints(dates[+slider.value]);
     });
 
-    selectAllInterestsBtn.addEventListener("click", () => {
-      selectAllIn(interestFilters, "interest");
-      renderInterestLegend();
+    selectAllThemesBtn.addEventListener("click", () => {
+      selectAllIn(themeFilters, "theme");
+      renderThemeLegend();
       updatePoints(dates[+slider.value]);
     });
 
-    clearAllInterestsBtn.addEventListener("click", () => {
-      clearAllIn(interestFilters, "interest");
-      renderInterestLegend();
+    clearAllThemesBtn.addEventListener("click", () => {
+      clearAllIn(themeFilters, "theme");
+      renderThemeLegend();
       updatePoints(dates[+slider.value]);
     });
 

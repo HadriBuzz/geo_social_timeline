@@ -11,32 +11,32 @@
     <aside class="sidebar">
       <div class="panel">
         <p class="eyebrow">Explorer</p>
-        <h1>Human focus evolution</h1>
+        <h1>Human themes evolution</h1>
         <p class="panel-copy">
-          Tracking the evolution of human interests across time and space.
+          Tracking the evolution of human themes across time and space.
         </p>
       </div>
 
-      <div class="panel collapsible-panel" id="interestPanel">
+      <div class="panel collapsible-panel" id="themePanel">
         <div class="panel-header">
-          <h2>Interests</h2>
+          <h2>Themes</h2>
           <button
-            id="toggleInterestsBtn"
+            id="toggleThemesBtn"
             type="button"
             class="collapse-button"
             aria-expanded="false"
-            aria-controls="interestsBody"
+            aria-controls="themesBody"
           >
             <span class="collapse-label">Expand</span>
             <span class="collapse-icon" aria-hidden="true"></span>
           </button>
         </div>
-        <div id="interestsBody" class="filter-body">
+        <div id="themesBody" class="filter-body">
           <div class="filter-actions">
-            <button id="selectAllInterestsBtn" type="button" class="ghost-button">Display all</button>
-            <button id="clearAllInterestsBtn" type="button" class="ghost-button ghost-button-secondary">Hide all</button>
+            <button id="selectAllThemesBtn" type="button" class="ghost-button">Display all</button>
+            <button id="clearAllThemesBtn" type="button" class="ghost-button ghost-button-secondary">Hide all</button>
           </div>
-          <div id="interestFilters" class="filter-list"></div>
+          <div id="themeFilters" class="filter-list"></div>
         </div>
       </div>
 
@@ -75,7 +75,7 @@
 
         <div class="map-layout">
           <div id="map"></div>
-          <aside id="interestLegend" class="interest-legend"></aside>
+          <aside id="themeLegend" class="theme-legend"></aside>
         </div>
 
         <div class="map-actions">
