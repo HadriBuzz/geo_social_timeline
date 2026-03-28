@@ -64,7 +64,10 @@ const zoomBehavior = d3
     svg.classed("is-dragging", true);
   })
   .on("zoom", (event) => {
+    currentZoomScale = event.transform.k;
     g.attr("transform", event.transform);
+    g.selectAll(".point")
+      .attr("r", d => radiusScale(d.values[dates[+slider.value]]) / currentZoomScale);
   })
   .on("end", () => {
     svg.classed("is-dragging", false);
@@ -87,6 +90,7 @@ const toggleFiltersBtn = document.getElementById("toggleFiltersBtn");
 const collapseLabel = toggleFiltersBtn.querySelector(".collapse-label");
 
 let playbackInterval = null;
+let currentZoomScale = 1;
 
 slider.max = dates.length - 1;
 
@@ -115,7 +119,7 @@ function updatePoints(selectedDate) {
         .call(enter => enter
           .transition()
           .duration(300)
-          .attr("r", d => radiusScale(d.values[selectedDate]))),
+          .attr("r", d => radiusScale(d.values[selectedDate]) / currentZoomScale)),
       update => update,
       exit => exit
         .transition()
@@ -125,7 +129,7 @@ function updatePoints(selectedDate) {
     )
     .transition()
     .duration(300)
-    .attr("r", d => radiusScale(d.values[selectedDate]));
+    .attr("r", d => radiusScale(d.values[selectedDate]) / currentZoomScale);
 
   g.selectAll(".point title")
     .text(d => `${d.name} - ${selectedDate} : ${d.values[selectedDate]}`);
