@@ -65,6 +65,9 @@ const slider = document.getElementById("timeSlider");
 const timeLabel = document.getElementById("timeLabel");
 const cityFilters = document.getElementById("cityFilters");
 const selectAllBtn = document.getElementById("selectAllBtn");
+const playButton = document.getElementById("playButton");
+
+let playbackInterval = null;
 
 slider.max = dates.length - 1;
 
@@ -107,6 +110,44 @@ function updatePoints(selectedDate) {
 
   g.selectAll(".point title")
     .text(d => `${d.name} - ${selectedDate} : ${d.values[selectedDate]}`);
+}
+
+function updatePlaybackButton() {
+  const isPlaying = playbackInterval !== null;
+  playButton.textContent = isPlaying ? "Pause" : "Play";
+  playButton.classList.toggle("is-playing", isPlaying);
+}
+
+function stopPlayback() {
+  if (playbackInterval !== null) {
+    clearInterval(playbackInterval);
+    playbackInterval = null;
+    updatePlaybackButton();
+  }
+}
+
+function showDateAtIndex(index) {
+  slider.value = index;
+  updatePoints(dates[index]);
+}
+
+function startPlayback() {
+  if (+slider.value >= dates.length - 1) {
+    showDateAtIndex(0);
+  }
+
+  playbackInterval = window.setInterval(() => {
+    const currentIndex = +slider.value;
+
+    if (currentIndex >= dates.length - 1) {
+      stopPlayback();
+      return;
+    }
+
+    showDateAtIndex(currentIndex + 1);
+  }, 900);
+
+  updatePlaybackButton();
 }
 
 function renderCityFilters() {
@@ -157,6 +198,17 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
       });
       updatePoints(dates[+slider.value]);
     });
+
+    playButton.addEventListener("click", () => {
+      if (playbackInterval !== null) {
+        stopPlayback();
+        return;
+      }
+
+      startPlayback();
+    });
+
+    updatePlaybackButton();
   })
   .catch(error => {
     console.error("Erreur lors du chargement de la carte :", error);
