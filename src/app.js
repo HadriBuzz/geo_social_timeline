@@ -1,0 +1,110 @@
+const width = 1000;
+const height = 550;
+
+const dates = ["2026-01", "2026-02", "2026-03", "2026-04"];
+
+const points = [
+  {
+    name: "Paris",
+    lon: 2.3522,
+    lat: 48.8566,
+    values: {
+      "2026-01": 80,
+      "2026-02": 120,
+      "2026-03": 100,
+      "2026-04": 250,
+    }
+  },
+  {
+    name: "New York",
+    lon: -74.0060,
+    lat: 40.7128,
+    values: {
+      "2026-01": 60,
+      "2026-02": 90,
+      "2026-03": 140,
+      "2026-04": 50,
+    }
+  },
+  {
+    name: "Tokyo",
+    lon: 139.6917,
+    lat: 35.6895,
+    values: {
+      "2026-01": 100,
+      "2026-02": 70,
+      "2026-03": 150,
+      "2026-04": 130,
+    }
+  }
+];
+
+const svg = d3
+  .select("#map")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+const g = svg.append("g");
+
+const projection = d3
+  .geoNaturalEarth1()
+  .scale(180)
+  .translate([width / 2, height / 2]);
+
+const path = d3.geoPath().projection(projection);
+
+const maxValue = d3.max(points, p => d3.max(Object.values(p.values)));
+
+const radiusScale = d3
+  .scaleSqrt()
+  .domain([0, maxValue])
+  .range([4, 20]);
+
+const slider = document.getElementById("timeSlider");
+const timeLabel = document.getElementById("timeLabel");
+
+slider.max = dates.length - 1;
+
+function updatePoints(selectedDate) {
+  timeLabel.textContent = selectedDate;
+
+  g.selectAll(".point")
+    .transition()
+    .duration(300)
+    .attr("r", d => radiusScale(d.values[selectedDate]));
+
+  g.selectAll(".point title")
+    .text(d => `${d.name} - ${selectedDate} : ${d.values[selectedDate]}`);
+}
+
+d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+  .then(worldData => {
+    g.selectAll(".country")
+      .data(worldData.features)
+      .join("path")
+      .attr("class", "country")
+      .attr("d", path);
+
+    g.selectAll(".point")
+      .data(points)
+      .join("circle")
+      .attr("class", "point")
+      .attr("cx", d => projection([d.lon, d.lat])[0])
+      .attr("cy", d => projection([d.lon, d.lat])[1])
+      .attr("r", d => radiusScale(d.values[dates[0]]))
+      .each(function(d) {
+        d3.select(this)
+          .append("title")
+          .text(`${d.name} - ${dates[0]} : ${d.values[dates[0]]}`);
+      });
+
+    slider.addEventListener("input", (event) => {
+      const index = +event.target.value;
+      const selectedDate = dates[index];
+      updatePoints(selectedDate);
+    });
+  })
+  .catch(error => {
+    console.error("Erreur lors du chargement de la carte :", error);
+  });

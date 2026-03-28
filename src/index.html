@@ -3,12 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Social Geo MVP</title>
+  <title>Social Geo - Slider MVP</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Social Geo - MVP</h1>
+  <h1>Human focus evolution</h1>
+
+  
+
   <div id="map"></div>
+
+  <div id="controls">
+    <span id="timeLabel">2026-01</span>
+    <label for="timeSlider"> :</label>
+    <input id="timeSlider" type="range" min="0" max="2" step="1" value="0" />
+  </div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="app.js"></script>
