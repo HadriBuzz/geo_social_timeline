@@ -1,56 +1,20 @@
 const width = 1000;
 const height = 550;
+const API_URL = "http://127.0.0.1:8000/data";
 
-const dates = ["2026-01", "2026-02", "2026-03", "2026-04"];
-const interests = ["politics", "economy", "sports", "entertainment", "Artificial Intelligence"];
-
-const points = [
-  {
-    name: "Paris",
-    lon: 2.3522,
-    lat: 48.8566,
-    interests: {
-      politics: { "2026-01": 35, "2026-02": 50, "2026-03": 45, "2026-04": 90 },
-      economy: { "2026-01": 20, "2026-02": 30, "2026-03": 22, "2026-04": 55 },
-      sports: { "2026-01": 15, "2026-02": 18, "2026-03": 20, "2026-04": 48 },
-      entertainment: { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
-      "Artificial Intelligence": { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
-    }
-  },
-  {
-    name: "New York",
-    lon: -74.006,
-    lat: 40.7128,
-    interests: {
-      politics: { "2026-01": 18, "2026-02": 24, "2026-03": 32, "2026-04": 12 },
-      economy: { "2026-01": 20, "2026-02": 28, "2026-03": 42, "2026-04": 14 },
-      sports: { "2026-01": 12, "2026-02": 16, "2026-03": 36, "2026-04": 10 },
-      entertainment: { "2026-01": 10, "2026-02": 22, "2026-03": 30, "2026-04": 14 },
-      "Artificial Intelligence": { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
-    }
-  },
-  {
-    name: "Tokyo",
-    lon: 139.6917,
-    lat: 35.6895,
-    interests: {
-      politics: { "2026-01": 28, "2026-02": 14, "2026-03": 32, "2026-04": 25 },
-      economy: { "2026-01": 26, "2026-02": 18, "2026-03": 34, "2026-04": 28 },
-      sports: { "2026-01": 24, "2026-02": 16, "2026-03": 46, "2026-04": 39 },
-      entertainment: { "2026-01": 22, "2026-02": 22, "2026-03": 38, "2026-04": 38 },
-      "Artificial Intelligence": { "2026-01": 10, "2026-02": 22, "2026-03": 13, "2026-04": 35 },
-    }
-  }
-];
+let dates = [];
+let interests = [];
+let points = [];
 
 const interestColors = {
   politics: "#f4a6a6",
   economy: "#9dc7f7",
   sports: "#9ad8b4",
   entertainment: "#d6b3f7",
-  "Artificial Intelligence": "#FFFFE0",
-
+  "Artificial Intelligence": "#fff4b8",
 };
+
+const fallbackPalette = ["#f9c7c7", "#bdd7fb", "#b8e7cd", "#e3cbfb", "#ffe4b8", "#cce7ef"];
 
 const DONUT_OUTER_RADIUS = 22;
 const DONUT_INNER_RATIO = 0.52;
@@ -95,8 +59,6 @@ const collapsiblePanels = [
 let playbackInterval = null;
 let currentZoomScale = 1;
 
-slider.max = dates.length - 1;
-
 const pie = d3
   .pie()
   .sort(null)
@@ -112,11 +74,18 @@ const zoomBehavior = d3
   .on("zoom", event => {
     currentZoomScale = event.transform.k;
     g.attr("transform", event.transform);
-    updatePoints(dates[+slider.value]);
+
+    if (dates.length > 0) {
+      updatePoints(dates[+slider.value]);
+    }
   })
   .on("end", () => {
     svg.classed("is-dragging", false);
   });
+
+function getInterestColor(interest, index) {
+  return interestColors[interest] ?? fallbackPalette[index % fallbackPalette.length];
+}
 
 function getSelectedCities() {
   return points.filter(point => {
@@ -140,7 +109,6 @@ function getDonutGeometry() {
   const outerRadius = DONUT_OUTER_RADIUS / currentZoomScale;
   const innerRadius = outerRadius * DONUT_INNER_RATIO;
   return {
-    outerRadius,
     innerRadius,
     arc: d3.arc().innerRadius(innerRadius).outerRadius(outerRadius),
     labelArc: d3.arc().innerRadius(innerRadius).outerRadius(outerRadius),
@@ -152,7 +120,7 @@ function updatePoints(selectedDate) {
 
   const selectedCities = getSelectedCities();
   const selectedInterests = getSelectedInterests();
-  const { outerRadius, innerRadius, arc, labelArc } = getDonutGeometry();
+  const { innerRadius, arc, labelArc } = getDonutGeometry();
 
   const donutGroups = g.selectAll(".donut")
     .data(selectedCities, d => d.name)
@@ -187,10 +155,10 @@ function updatePoints(selectedDate) {
         enter => enter
           .append("path")
           .attr("class", "donut-slice")
-          .attr("fill", d => interestColors[d.data.interest])
+          .attr("fill", d => getInterestColor(d.data.interest, interests.indexOf(d.data.interest)))
           .attr("d", arc),
         update => update
-          .attr("fill", d => interestColors[d.data.interest])
+          .attr("fill", d => getInterestColor(d.data.interest, interests.indexOf(d.data.interest)))
           .attr("d", arc),
         exit => exit.remove()
       );
@@ -256,13 +224,13 @@ function renderInterestLegend() {
   title.textContent = "Interests";
   interestLegend.append(title);
 
-  selectedInterests.forEach(interest => {
+  selectedInterests.forEach((interest, index) => {
     const item = document.createElement("div");
     item.className = "legend-item";
 
     const swatch = document.createElement("span");
     swatch.className = "legend-swatch";
-    swatch.style.backgroundColor = interestColors[interest];
+    swatch.style.backgroundColor = getInterestColor(interest, index);
 
     const label = document.createElement("span");
     label.textContent = interest;
@@ -322,8 +290,30 @@ function selectAllIn(container, attribute) {
   });
 }
 
-d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
-  .then(worldData => {
+async function loadData() {
+  const response = await fetch(API_URL);
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function init() {
+  try {
+    const [worldData, data] = await Promise.all([
+      d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"),
+      loadData(),
+    ]);
+
+    dates = data.dates;
+    interests = data.interests;
+    points = data.points;
+
+    slider.max = dates.length - 1;
+    slider.value = 0;
+
     svg.call(zoomBehavior);
 
     renderFilterList(cityFilters, points.map(point => point.name), "city", () => {
@@ -356,6 +346,7 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
 
     selectAllInterestsBtn.addEventListener("click", () => {
       selectAllIn(interestFilters, "interest");
+      renderInterestLegend();
       updatePoints(dates[+slider.value]);
     });
 
@@ -378,7 +369,9 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
     });
 
     updatePlaybackButton();
-  })
-  .catch(error => {
-    console.error("Erreur lors du chargement de la carte :", error);
-  });
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation :", error);
+  }
+}
+
+init();
