@@ -475,8 +475,7 @@ svg.is-dragging {
   }
 
   .panel-header,
-  .map-header,
-  .timeline-controls {
+  .map-header {
     flex-direction: column;
     align-items: stretch;
   }
@@ -485,17 +484,30 @@ svg.is-dragging {
     flex-direction: column;
   }
 
+  .timeline-main {
+    min-width: 0;
+  }
+
+  .timeline-controls {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
   .speed-card {
-    width: 100%;
-    justify-items: start;
+    width: auto;
+    justify-items: center;
+    flex: 0 0 auto;
+    margin-left: auto;
   }
 
   #speedSlider {
-    width: 100%;
-    height: auto;
-    writing-mode: initial;
-    direction: ltr;
-    cursor: pointer;
+    width: 18px;
+    height: 100px;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    cursor: ns-resize;
   }
 
   .map-layout {
