@@ -3,3 +3,8 @@
 # Python environnement
 __pycache__/
 pyvenv/
+
+raw_data/
+
+
+rss_spaces.json
